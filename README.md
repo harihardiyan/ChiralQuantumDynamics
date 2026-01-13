@@ -1,94 +1,84 @@
 
 
 # ChiralQuantumDynamics-JAX
-**Non-Equilibrium Chiral Transport in Molecular Rings under Strong Laser Driving**
 
-[![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
+**A High-Performance Research Framework for Non-Equilibrium Chiral Transport in Molecular Rings**
+
 [![JAX](https://img.shields.io/badge/backend-JAX-red.svg)](https://github.com/google/jax)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Precision: float64](https://img.shields.io/badge/Precision-float64-blue.svg)](#)
 
 ## 1. Abstract
-This repository provides a high-performance research framework to simulate the non-equilibrium electron dynamics in a 6-site molecular ring (e.g., Benzene-like structures) subjected to chiral-polarized laser pulses. The solver implements a **Non-linear Lindblad Master Equation** within the **Hartree-Fock Mean-Field** approximation to study the robustness of chiral currents against electron-electron interactions ($U$).
+`ChiralQuantumDynamics-JAX` is a specialized computational framework designed to simulate non-equilibrium electron dynamics in molecular rings (e.g., Benzene-like structures) under the influence of chiral-polarized laser pulses. The framework investigates the **robustness of chiral currents** against electron-electron interactions ($U$) and Aharonov-Bohm magnetic flux.
 
-Developed with **JAX**, the framework utilizes XLA compilation and 64-bit precision to ensure numerical integrity in high-frequency driving regimes.
+Built on **JAX**, the solver leverages XLA compilation and 64-bit precision to ensure high numerical fidelity. It is a **"Pure Science Solver"**, meaning it relies strictly on fundamental Master Equation dynamics without the use of heuristic positivity projections or numerical "hacks."
 
-## 2. Theoretical Framework
+## 2. Author Information
+*   **Author:** Hari Hardiyan
+*   **Role:** Physics Enthusiast | Computational Quantum Dynamics Researcher
+*   **Email:** [lorozloraz@gmail.com](mailto:lorozloraz@gmail.com)
+
+## 3. Theoretical Framework
 
 ### Hamiltonian and Gauge Coupling
-The system is modeled using a Tight-Binding Hamiltonian. Chiral driving is incorporated via the **Peierls Substitution**, where the time-dependent hopping term is given by:
+The system is governed by a Tight-Binding Hamiltonian. Laser-matter interaction is incorporated via **Peierls Substitution** at the bond level to maintain gauge invariance:
 $$t_{ij}(\mathbf{A}(t)) = t_0 e^{i \frac{e}{\hbar} \int_i^j \mathbf{A}(t) \cdot d\mathbf{l}}$$
-Magnetic flux effects are included through an additive Aharonov-Bohm phase ($\Phi_{AB}$).
 
-### Dissipative Dynamics
-To account for system-environment interactions, we solve the Lindblad Master Equation:
-$$\frac{d\rho}{dt} = -\frac{i}{\hbar} [H_{eff}(\rho, t), \rho] + \mathcal{L}(\rho)$$
-where:
-*   $H_{eff}$ includes the nonlinear Hartree potential: $V_i = U(n_i - n_{ref})$.
-*   $\mathcal{L}(\rho)$ represents pure dephasing in the site basis.
+### Dissipative Master Equation
+Open quantum system dynamics are resolved using the **Lindblad Master Equation**, accounting for pure dephasing in the site basis:
+$$\frac{d\rho}{dt} = -\frac{i}{\hbar} [H_{eff}(\rho, t), \rho] + \sum_j \gamma \left( L_j \rho L_j^\dagger - \frac{1}{2} \{L_j^\dagger L_j, \rho\} \right)$$
+where $H_{eff}$ is a nonlinear effective Hamiltonian incorporating the **Hartree Mean-Field** potential $V_i = U(n_i - n_{ref})$ based on the instantaneous local density $\rho_{ii}$.
 
-## 3. Key Features
-- **Pure Physics Solver**: No heuristic "positivity hacks" or "thermal BGK" shortcuts.
-- **Scientific Unit Scaling**: Currents are reported in physical units ($e/fs$).
-- **U-Sweep Automation**: Built-in orchestration to analyze the robustness of chiral response across different interaction strengths.
-- **Numerical Integrity Audit**: Real-time monitoring of density matrix positivity ($\min \lambda$) and trace conservation.
-- **JAX Optimized**: Fully vectorized and JIT-compiled backend for high-speed parameter exploration.
+## 4. Key Scientific Features
+- **Deterministic Physics Solver**: Uses a standard RK4 integrator without forced positivity projections. Stability is achieved through algorithmic precision, not numerical "cheats."
+- **Natural Scaling**: All currents are computed and reported in physical units of electrons per femtosecond ($e/fs$).
+- **Interaction Robustness Analysis**: Includes automated modules for sweeping the Coulomb interaction strength ($U$) to determine the breakdown of chiral selectivity.
+- **JAX Pytree Integration**: Fully modular architecture with JAX Pytree-registered parameters for maximum XLA performance and clean research workflows.
 
-## 4. Installation
+## 5. Repository Structure
+```text
+├── simulator/         # Core Physics Engine
+│   ├── __init__.py    # API Exposing
+│   ├── config.py      # Pytree-registered parameters
+│   ├── physics.py     # Hamiltonian & Geometry builders
+│   ├── solver.py      # RK4 Master Equation integrator
+│   └── observables.py # Current & Energy computations
+├── tests/             # Numerical Integrity Tests
+├── main_lab.py        # Single experiment demonstration
+└── u_sweep_analysis.py # Research-grade trend analysis
+```
 
-Ensure you have Python 3.9+ and a JAX-compatible environment.
+## 6. Installation
+This framework requires Python 3.9+ and a JAX-compatible environment.
 
 ```bash
-git clone https://github.com/yourusername/ChiralQuantumDynamics-JAX.git
+git clone https://github.com/harihardiyan/ChiralQuantumDynamics-JAX.git
 cd ChiralQuantumDynamics-JAX
 pip install -r requirements.txt
 ```
 
-*Required dependencies: `jax`, `jaxlib`, `numpy`, `matplotlib`.*
-
-## 5. Quick Start
-
-To run a standard chiral response sweep across interaction strengths $U \in [0, 1.5]$ eV:
-
-```python
-from simulator import run_single_u, PhysicsParams, LaserParams
-
-# Configure parameters
-phys = PhysicsParams(phi_ab=0.02, gamma_phi=0.005)
-laser = LaserParams(omega=1.5, tau=40.0)
-
-# Execute simulation
-asymmetry, peak_current = run_single_u(u_val=0.5, p_base=phys, l=laser, t_max=120.0, dt=0.02)
-print(f"Chiral Asymmetry Index: {asymmetry:.2f}%")
-```
-
-Atau cukup jalankan skrip utama untuk menghasilkan laporan riset lengkap:
-```bash
-python main_lab.py
-```
-
-## 6. Numerical Diagnostics
-The solver provides automated diagnostics to ensure scientific validity:
-| Metric | Description | Acceptable Range |
-| :--- | :--- | :--- |
-| `Min Eigenvalue` | Monitors $\rho$ positivity | $> -1 \times 10^{-10}$ |
-| `Trace Deviation` | Particle number conservation | $< 1 \times 10^{-12}$ |
-| `J-Asymmetry` | RH vs LH peak current delta | Systematic trend vs $U$ |
-
-## 7. Results Visualization
-The framework generates trend analyses such as:
-- **Interaction Robustness**: Chiral asymmetry index as a function of $U$.
-- **Temporal Dynamics**: Internal energy $\Delta E(t)$ and current $J(t)$ evolution.
+## 7. Numerical Validation
+The framework provides real-time monitoring of numerical integrity:
+- **Positivity Monitor**: Reports the minimum eigenvalue ($\min \lambda_\rho$) to verify the physical validity of the density matrix.
+- **Trace Stability**: Particle number conservation is maintained with a deviation typically below $10^{-14}$ using `float64` precision.
 
 ## 8. Citation
-If you use this framework in your research, please cite it as:
-```text
-@software{chiral_dynamics_jax_2024,
-  author = {Your Name or GitHub Handle},
-  title = {ChiralQuantumDynamics-JAX: A Framework for Molecular Chiral Transport},
-  year = {2024},
-  url = {https://github.com/yourusername/ChiralQuantumDynamics-JAX}
+If you use this framework in your scientific research or publications, please cite it as follows:
+
+```bibtex
+@software{hardiyan_chiral_jax_2026,
+  author = {Hardiyan, Hari},
+  title = {ChiralQuantumDynamics-JAX: High-Performance Chiral Transport Simulator},
+  year = {2026},
+  publisher = {GitHub},
+  journal = {GitHub repository},
+  howpublished = {\url{https://github.com/harihardiyan/ChiralQuantumDynamics-JAX}},
+  version = {1.0.0}
 }
 ```
 
 ## 9. License
-Distributed under the MIT License. See `LICENSE` for more information.
+Distributed under the **MIT License**. See `LICENSE` for more information.
+
+---
+*Developed for the study of quantum non-equilibrium phenomena and chiral molecular electronics.*
