@@ -1,6 +1,6 @@
 
 
-# ChiralQuantumDynamics-JAX
+# ChiralQuantumDynamics
 
 **A High-Performance Research Framework for Non-Equilibrium Chiral Transport in Molecular Rings**
 
@@ -52,8 +52,8 @@ where $H_{eff}$ is a nonlinear effective Hamiltonian incorporating the **Hartree
 This framework requires Python 3.9+ and a JAX-compatible environment.
 
 ```bash
-git clone https://github.com/harihardiyan/ChiralQuantumDynamics-JAX.git
-cd ChiralQuantumDynamics-JAX
+git clone https://github.com/harihardiyan/ChiralQuantumDynamics.git
+cd ChiralQuantumDynamics
 pip install -r requirements.txt
 ```
 
@@ -72,7 +72,7 @@ If you use this framework in your scientific research or publications, please ci
   year = {2026},
   publisher = {GitHub},
   journal = {GitHub repository},
-  howpublished = {\url{https://github.com/harihardiyan/ChiralQuantumDynamics-JAX}},
+  howpublished = {\url{https://github.com/harihardiyan/ChiralQuantumDynamics}},
   version = {1.0.0}
 }
 ```
